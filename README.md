@@ -1,16 +1,8 @@
-# calorie_diary
+Дневник для подсчета калорий
 
-A new Flutter project.
+***
+Это календарь в который можно добавлять продукты съеденные за день
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img src="https://github.com/user-attachments/assets/9d41b6a7-d4ee-48cb-ba66-89a9fd05699f" width="200">
+<img src="https://github.com/user-attachments/assets/04b8540c-ad80-4d22-ae4e-3ec040bd9e82" width="200">
+<img src="https://github.com/user-attachments/assets/ab208ad6-dc0e-4987-b595-c4466c776272" width="200">
