@@ -1,4 +1,5 @@
 import 'package:calorie_diary/pages/full_list_page.dart';
+import 'package:calorie_diary/pages/memory_list_page.dart';
 import 'package:flutter/material.dart';
 
 class BottomSwipeMenu extends StatefulWidget {
@@ -9,6 +10,7 @@ class BottomSwipeMenu extends StatefulWidget {
 class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
   final List<IconData> icons = [
     Icons.app_registration_rounded,
+    Icons.photo_album
     //Icons.star,
     //Icons.settings,
   ];
@@ -63,6 +65,26 @@ class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const FullListPage()),
+                          );
+                        },
+                        child: CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.green[100],
+                          child: Icon(icon, color: Colors.green, size: 36),
+                        ),
+                      ),
+                    );
+                  } else if (icon == Icons.photo_album) {
+                    return Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context)
+                              .pop(); // закрываем меню перед навигацией (по желанию)
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const MemoryListPage()),
                           );
                         },
                         child: CircleAvatar(
