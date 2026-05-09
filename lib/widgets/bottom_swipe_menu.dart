@@ -1,115 +1,132 @@
-import 'package:calorie_diary/pages/full_list_page.dart';
-import 'package:calorie_diary/pages/memory_list_page.dart';
+import 'package:calorie_diary/pages/nav_pages/full_list_page.dart';
+import 'package:calorie_diary/pages/nav_pages/memory_list_page.dart';
+import 'package:calorie_diary/pages/nav_pages/motivation_page/motivation_page.dart';
 import 'package:flutter/material.dart';
 
 class BottomSwipeMenu extends StatefulWidget {
+  const BottomSwipeMenu({super.key});
+
   @override
   _BottomSwipeMenuState createState() => _BottomSwipeMenuState();
 }
 
 class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
-  final List<IconData> icons = [
-    Icons.app_registration_rounded,
-    Icons.photo_album
-    //Icons.star,
-    //Icons.settings,
+  // Выносим данные в структуру для удобства
+  final List<Map<String, dynamic>> menuItems = [
+    {
+      'icon': Icons.app_registration_rounded,
+      'label': 'Блюда',
+      'page': const FullListPage()
+    },
+    {
+      'icon': Icons.photo_album,
+      'label': 'Фото',
+      'page': const MemoryListPage()
+    },
+    {
+      'icon': Icons.brightness_4_outlined,
+      'label': 'Мотивация',
+      'page': MotivationPage()
+    }, // Пока заглушка
+    {'icon': Icons.settings_outlined, 'label': 'Настройки', 'page': null},
   ];
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return DraggableScrollableSheet(
       initialChildSize: 0.25,
-      minChildSize: 0.14,
-      maxChildSize: 0.6,
+      minChildSize: 0.18,
+      maxChildSize: 0.5,
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-            boxShadow: [BoxShadow(blurRadius: 8, color: Colors.black12)],
+            color: colorScheme.surface, // Используем ваш F1F8E9
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 12,
+                color: Colors.black.withValues(alpha: 0.1),
+                offset: const Offset(0, -2),
+              )
+            ],
           ),
-          child: Column(
+          child: ListView(
+            // Используем ListView с контроллером для скролла шторки
+            controller: scrollController,
             children: [
-              SizedBox(height: 12),
-              Container(
-                width: 38,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(4),
+              const SizedBox(height: 12),
+              // Хендл
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
-              SizedBox(height: 14),
+              const SizedBox(height: 20),
+              // Ряд иконок
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: icons.map((icon) {
-                  // Обработчик для иконки app_registration_rounded
-                  if (icon == Icons.app_registration_rounded) {
-                    return Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context)
-                              .pop(); // закрываем меню перед навигацией (по желанию)
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const FullListPage()),
-                          );
-                        },
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.green[100],
-                          child: Icon(icon, color: Colors.green, size: 36),
-                        ),
-                      ),
-                    );
-                  } else if (icon == Icons.photo_album) {
-                    return Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context)
-                              .pop(); // закрываем меню перед навигацией (по желанию)
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const MemoryListPage()),
-                          );
-                        },
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.green[100],
-                          child: Icon(icon, color: Colors.green, size: 36),
-                        ),
-                      ),
-                    );
-                  } else {
-                    return Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.green[100],
-                        child: Icon(icon, color: Colors.green, size: 36),
-                      ),
-                    );
-                  }
-                }).toList(),
+                children: menuItems
+                    .map((item) => _buildMenuButton(context, item))
+                    .toList(),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildMenuButton(BuildContext context, Map<String, dynamic> item) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final bool hasPage = item['page'] != null;
+
+    return GestureDetector(
+      onTap: () {
+        if (hasPage) {
+          Navigator.of(context).pop(); // Закрываем шторку
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => item['page']),
+          );
+        } else {
+          // Логика для вкладок без страниц
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Раздел "${item['label']}" в разработке')),
+          );
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor:
+                colorScheme.primaryContainer, // Светло-зеленый (C8E6C9)
+            child: Icon(
+              item['icon'],
+              color:
+                  hasPage ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            item['label'],
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -76,7 +76,7 @@ class _MemoryListPageState extends State<MemoryListPage> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
-                                      color: Colors.amber,
+                                      color: const Color(0xFFFFC107),
                                       width: MediaQuery.of(context).size.width,
                                       padding: const EdgeInsets.all(8),
                                       child: Text(
