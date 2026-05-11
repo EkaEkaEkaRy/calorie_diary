@@ -11,7 +11,7 @@ class BottomSwipeMenu extends StatefulWidget {
 }
 
 class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
-  // Выносим данные в структуру для удобства
+  // Твои данные
   final List<Map<String, dynamic>> menuItems = [
     {
       'icon': Icons.app_registration_rounded,
@@ -26,10 +26,28 @@ class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
     {
       'icon': Icons.brightness_4_outlined,
       'label': 'Мотивация',
-      'page': MotivationPage()
-    }, // Пока заглушка
+      'page': const MotivationPage()
+    },
     {'icon': Icons.settings_outlined, 'label': 'Настройки', 'page': null},
   ];
+
+  late PageController _pageController;
+  double _currentPage = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0, viewportFraction: 0.3);
+    _pageController.addListener(() {
+      setState(() => _currentPage = _pageController.page!);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,44 +55,61 @@ class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
 
     return DraggableScrollableSheet(
       initialChildSize: 0.25,
-      minChildSize: 0.18,
-      maxChildSize: 0.5,
+      minChildSize: 0.14,
+      maxChildSize: 0.6,
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: colorScheme.surface, // Используем ваш F1F8E9
+            color: colorScheme.surface,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 12,
-                color: Colors.black.withValues(alpha: 0.1),
-                offset: const Offset(0, -2),
-              )
-            ],
+            boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12)],
           ),
-          child: ListView(
-            // Используем ListView с контроллером для скролла шторки
-            controller: scrollController,
+          child: Column(
             children: [
               const SizedBox(height: 12),
               // Хендл
-              Center(
-                child: Container(
-                  width: 40,
+              Container(
+                  width: 38,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(4))),
+              const SizedBox(height: 20),
+
+              // Карусель иконок
+              SizedBox(
+                height: 110,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: menuItems.length,
+                  clipBehavior:
+                      Clip.none, // Позволяет иконкам выходить за границы
+                  itemBuilder: (context, index) {
+                    double difference = (index - _currentPage).abs();
+                    double scale = 1.0 - (difference * 0.15).clamp(0.0, 0.15);
+
+                    return _buildAnimatedItem(context, menuItems[index], scale);
+                  },
                 ),
               ),
-              const SizedBox(height: 20),
-              // Ряд иконок
+
+              // ПОДСКАЗКА: Точки пагинации
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: menuItems
-                    .map((item) => _buildMenuButton(context, item))
-                    .toList(),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(menuItems.length, (index) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 6,
+                    width: _currentPage.round() == index ? 12 : 6,
+                    decoration: BoxDecoration(
+                      color: _currentPage.round() == index
+                          ? colorScheme.primary
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  );
+                }),
               ),
             ],
           ),
@@ -83,49 +118,43 @@ class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
     );
   }
 
-  Widget _buildMenuButton(BuildContext context, Map<String, dynamic> item) {
+  Widget _buildAnimatedItem(
+      BuildContext context, Map<String, dynamic> item, double scale) {
     final colorScheme = Theme.of(context).colorScheme;
-    final bool hasPage = item['page'] != null;
 
-    return GestureDetector(
-      onTap: () {
-        if (hasPage) {
-          Navigator.of(context).pop(); // Закрываем шторку
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => item['page']),
-          );
-        } else {
-          // Логика для вкладок без страниц
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Раздел "${item['label']}" в разработке')),
-          );
-        }
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor:
-                colorScheme.primaryContainer, // Светло-зеленый (C8E6C9)
-            child: Icon(
-              item['icon'],
-              color:
-                  hasPage ? colorScheme.primary : colorScheme.onSurfaceVariant,
-              size: 32,
-            ),
+    return Transform.scale(
+      scale: scale,
+      child: Opacity(
+        opacity: scale, // Немного приглушаем боковые иконки
+        child: GestureDetector(
+          onTap: () {
+            if (item['page'] != null) {
+              Navigator.pop(context);
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => item['page']));
+            }
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 35, // Базовый размер
+                backgroundColor: colorScheme.primaryContainer,
+                child: Icon(item['icon'], color: colorScheme.primary, size: 36),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                item['label'],
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight:
+                      scale > 0.95 ? FontWeight.bold : FontWeight.normal,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            item['label'],
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: colorScheme.onSurface,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
