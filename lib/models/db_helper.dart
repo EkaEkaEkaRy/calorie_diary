@@ -86,7 +86,7 @@ class DatabaseHelper {
     final db = await instance.database;
 
     return await db.rawQuery(
-        "SELECT DISTINCT id, text, date, imagePath FROM events WHERE imagePath IS NOT NULL ORDER BY date");
+        "SELECT DISTINCT id, text, date, imagePath FROM events WHERE imagePath IS NOT NULL ORDER BY date DESC");
   }
 
   Future<List<Map<String, dynamic>>> getEvent({String? textQuery}) async {

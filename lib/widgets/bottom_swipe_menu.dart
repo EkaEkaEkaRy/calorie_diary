@@ -1,6 +1,7 @@
 import 'package:calorie_diary/pages/nav_pages/full_list_page.dart';
 import 'package:calorie_diary/pages/nav_pages/memory_list_page.dart';
 import 'package:calorie_diary/pages/nav_pages/motivation_page/motivation_page.dart';
+import 'package:calorie_diary/pages/test_memory_page.dart';
 import 'package:flutter/material.dart';
 
 class BottomSwipeMenu extends StatefulWidget {
@@ -29,6 +30,11 @@ class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
       'page': const MotivationPage()
     },
     {'icon': Icons.settings_outlined, 'label': 'Настройки', 'page': null},
+    {
+      'icon': Icons.settings_outlined,
+      'label': 'Тестовый',
+      'page': MemoryGroupTestPage()
+    },
   ];
 
   late PageController _pageController;
