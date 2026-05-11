@@ -7,7 +7,7 @@ class BottomSwipeMenu extends StatefulWidget {
   const BottomSwipeMenu({super.key});
 
   @override
-  _BottomSwipeMenuState createState() => _BottomSwipeMenuState();
+  State<BottomSwipeMenu> createState() => _BottomSwipeMenuState();
 }
 
 class _BottomSwipeMenuState extends State<BottomSwipeMenu> {

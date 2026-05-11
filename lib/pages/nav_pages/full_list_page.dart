@@ -5,7 +5,7 @@ class FullListPage extends StatefulWidget {
   const FullListPage({super.key});
 
   @override
-  _FullListPageState createState() => _FullListPageState();
+  State<FullListPage> createState() => _FullListPageState();
 }
 
 class _FullListPageState extends State<FullListPage> {
@@ -102,7 +102,7 @@ class _FullListPageState extends State<FullListPage> {
                                 borderRadius: BorderRadius.circular(14.0),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withOpacity(0.3),
+                                    color: Colors.grey.withValues(alpha: 0.3),
                                     blurRadius: 5,
                                     offset: const Offset(0, 2),
                                   ),

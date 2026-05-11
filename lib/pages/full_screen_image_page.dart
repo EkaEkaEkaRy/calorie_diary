@@ -6,14 +6,14 @@ import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 class FullscreenImageScreen extends StatelessWidget {
   final String imagePath;
 
-  const FullscreenImageScreen({Key? key, required this.imagePath})
-      : super(key: key);
+  const FullscreenImageScreen({super.key, required this.imagePath});
 
   Future<void> _saveImage(BuildContext context) async {
     try {
       // Запрос разрешений (Android)
       final status = await Permission.photos.request();
       if (!status.isGranted) {
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Разрешение на доступ к хранилищу отклонено')),
         );
@@ -26,6 +26,7 @@ class FullscreenImageScreen extends StatelessWidget {
       final result = await ImageGallerySaverPlus.saveImage(bytes,
           quality: 100, name: 'image_${DateTime.now().millisecondsSinceEpoch}');
       if (result['isSuccess'] == true) {
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Изображение сохранено в галерею')),
         );
@@ -59,9 +60,9 @@ class FullscreenImageScreen extends StatelessWidget {
           tag:
               imagePath, // Можно использовать event['id'], но здесь imagePath тоже уникален
           child: InteractiveViewer(
-            child: Image.file(File(imagePath)),
             maxScale: 5.0,
             minScale: 1.0,
+            child: Image.file(File(imagePath)),
           ),
         ),
       ),

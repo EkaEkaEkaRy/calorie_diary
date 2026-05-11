@@ -9,10 +9,10 @@ import 'package:intl/intl.dart';
 class EventsListScreen extends StatefulWidget {
   final DateTime date;
 
-  EventsListScreen({required this.date});
+  const EventsListScreen({super.key, required this.date});
 
   @override
-  _EventsListScreenState createState() => _EventsListScreenState();
+  State<EventsListScreen> createState() => _EventsListScreenState();
 }
 
 class _EventsListScreenState extends State<EventsListScreen> {
@@ -39,7 +39,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
   };
 
   Map<String, List<Map<String, dynamic>>> _eventsByType = {};
-  Map<String, bool> _alcoholSwitchValue = {'Алкоголь': false};
+  final Map<String, bool> _alcoholSwitchValue = {'Алкоголь': false};
 
   @override
   void initState() {
@@ -106,7 +106,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
           await file.delete();
         } catch (e) {
           // Можно логировать ошибку, если нужно
-          print('Ошибка при удалении файла изображения: $e');
+          debugPrint('Ошибка при удалении файла изображения: $e');
         }
       }
     }
@@ -118,11 +118,11 @@ class _EventsListScreenState extends State<EventsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormatted = DateFormat.yMMMMd('ru_RU').format(widget.date);
+    final dateFormatted = DateFormat('d MMMM y', 'ru').format(widget.date);
 
     // Считаем суммарные калории за день
     double totalCalories = 0;
-    _eventsByType.values.forEach((eventsList) {
+    for (var eventsList in _eventsByType.values) {
       for (var event in eventsList) {
         final weight = event['weightOrCount'];
         final energy = event['energyValue'];
@@ -131,13 +131,13 @@ class _EventsListScreenState extends State<EventsListScreen> {
           totalCalories += (weight * energy * count / 100);
         }
       }
-    });
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F8E9),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('$dateFormatted'),
+        title: Text(dateFormatted),
       ),
       body: ListView.builder(
         itemCount: _dbTypes.length + 1,
@@ -207,7 +207,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                           _alcoholSwitchValue['Алкоголь'] = newValue;
                         });
                       },
-                      activeColor: Colors.green,
+                      activeThumbColor: Colors.green,
                     )
                   ],
                 ),

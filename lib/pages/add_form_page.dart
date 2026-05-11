@@ -13,10 +13,11 @@ class EventFormScreen extends StatefulWidget {
   final Map<String, dynamic>? event;
   final String? initialType;
 
-  EventFormScreen({required this.date, this.event, this.initialType});
+  const EventFormScreen(
+      {super.key, required this.date, this.event, this.initialType});
 
   @override
-  _EventFormScreenState createState() => _EventFormScreenState();
+  State<EventFormScreen> createState() => _EventFormScreenState();
 }
 
 class _EventFormScreenState extends State<EventFormScreen> {
@@ -185,6 +186,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка при выборе изображения: $e')),
       );
@@ -293,6 +295,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
       await db.insert('events', row);
     }
 
+    if (!mounted) return;
     Navigator.pop(context, true);
   }
 
@@ -572,11 +575,13 @@ class _EventFormScreenState extends State<EventFormScreen> {
                         }
                       },
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Введите количество';
+                        }
                         final parsed = int.tryParse(value);
-                        if (parsed == null || parsed <= 0)
+                        if (parsed == null || parsed <= 0) {
                           return 'Введите корректное целое число > 0';
+                        }
                         return null;
                       },
                       onSaved: (value) {

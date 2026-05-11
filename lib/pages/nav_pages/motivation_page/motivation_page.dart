@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'dart:math';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:calorie_diary/data/facts_list.dart';
 import 'package:calorie_diary/pages/nav_pages/motivation_page/components/breathing_exercise.dart';
@@ -317,8 +315,9 @@ class _MotivationPageState extends State<MotivationPage> {
 
             // Что показывать, пока картинка скачивается
             loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null)
+              if (loadingProgress == null) {
                 return child; // Если загружено, показываем картинку
+              }
               return Container(
                 height: 200,
                 width: double.infinity,

@@ -8,7 +8,7 @@ class MemoryListPage extends StatefulWidget {
   const MemoryListPage({super.key});
 
   @override
-  _MemoryListPageState createState() => _MemoryListPageState();
+  State<MemoryListPage> createState() => _MemoryListPageState();
 }
 
 class _MemoryListPageState extends State<MemoryListPage> {
