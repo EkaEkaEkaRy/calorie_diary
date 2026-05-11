@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:calorie_diary/data/facts_list.dart';
 import 'package:calorie_diary/pages/nav_pages/motivation_page/components/breathing_exercise.dart';
 import 'package:calorie_diary/pages/nav_pages/motivation_page/components/bubble_item.dart';
 import 'package:flutter/material.dart';
@@ -17,19 +19,7 @@ class _MotivationPageState extends State<MotivationPage> {
   Timer? _timer;
   int _start = 900; // 15 минут в секундах
   bool _isTimerRunning = false;
-  int _factIndex = 0;
-
-  final List<Map<String, String>> facts = [
-    {"img": "assets/images/octopus.jpg", "text": "Осьминоги имеют три сердца."},
-    {
-      "img": "assets/images/honey.jpg",
-      "text": "Мед — единственный продукт, который не портится."
-    },
-    {
-      "img": "assets/images/cloud.jpg",
-      "text": "Облака могут весить миллионы килограммов."
-    },
-  ];
+  int _factIndex = Random().nextInt(facts.length);
 
   final AudioPlayer _commonPlayer = AudioPlayer();
 
@@ -117,6 +107,8 @@ class _MotivationPageState extends State<MotivationPage> {
           const SizedBox(height: 10),
 
           _buildPopItCard(colorScheme),
+
+          const SizedBox(height: 50),
 
           // КНОПКА ВОДЫ
           // _buildActionCard(
@@ -317,8 +309,40 @@ class _MotivationPageState extends State<MotivationPage> {
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          Image.file(File(facts[_factIndex]['img']!),
-              fit: BoxFit.cover, height: 200, width: double.infinity),
+          Image.network(
+            facts[_factIndex]['img']!,
+            fit: BoxFit.cover,
+            height: 200,
+            width: double.infinity,
+
+            // Что показывать, пока картинка скачивается
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null)
+                return child; // Если загружено, показываем картинку
+              return Container(
+                height: 200,
+                width: double.infinity,
+                color: Colors.grey[300], // Серый фон
+                child: Center(
+                  child: Icon(Icons.broken_image,
+                      color: Colors.grey[600], size: 40),
+                ),
+              );
+            },
+
+            // Что показывать, если произошла ошибка (нет сети или плохая ссылка)
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 200,
+                width: double.infinity,
+                color: Colors.grey[300],
+                child: Center(
+                  child: Icon(Icons.broken_image,
+                      color: Colors.grey[600], size: 40),
+                ),
+              );
+            },
+          ),
           Container(
             padding: const EdgeInsets.all(12),
             color: Colors.black54,
@@ -334,7 +358,8 @@ class _MotivationPageState extends State<MotivationPage> {
             right: 8,
             child: IconButton.filled(
               onPressed: () => setState(() {
-                _factIndex = (_factIndex + 1) % facts.length;
+                // _factIndex = (1 + _factIndex) % facts.length;
+                _factIndex = Random().nextInt(facts.length);
               }),
               icon: const Icon(Icons.refresh),
             ),
