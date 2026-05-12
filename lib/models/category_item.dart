@@ -1,17 +1,9 @@
 import 'dart:ui';
 
-int indexCategory = 0;
-
-int getIndexCategory() {
-  indexCategory++;
-  final i = indexCategory;
-  return i;
-}
-
 class CategoryModel {
-  final int id = getIndexCategory();
+  final int id;
   final String name;
   final Color color;
 
-  CategoryModel({required this.name, required this.color});
+  CategoryModel({required this.id, required this.name, required this.color});
 }

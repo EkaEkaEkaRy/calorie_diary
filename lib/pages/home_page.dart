@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadEventsForDay(DateTime day) async {
+    await DatabaseHelper.instance.debugPrintFullDatabase();
     final dateString = DateFormat('yyyy-MM-dd').format(day);
     final events = await DatabaseHelper.instance.getEventsByDate(dateString);
     setState(() {
@@ -263,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemBuilder: (context, index) {
                           final event = _events[index];
                           final imagePath = event['imagePath'] as String?;
-                          final text = event['text'] ?? '';
+                          final text = event['foodName'] ?? event['text'] ?? '';
 
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 2),

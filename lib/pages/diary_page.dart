@@ -320,13 +320,13 @@ class _EventsListScreenState extends State<EventsListScreen> {
                                     // Текст описания, занимает всё доступное пространство
                                     Expanded(
                                       child: Text(
-                                        (event['text'] != null
-                                            ? event['text'] +
+                                        (event['foodName'] != null
+                                            ? event['foodName'] +
                                                 ((event['count'] != null &&
                                                         event['count'] > 1)
                                                     ? ' ${event['count'].toInt()}шт'
                                                     : '')
-                                            : 'Без описания'),
+                                            : event['text'] ?? 'Без описания'),
                                         style: TextStyle(fontSize: 16),
                                         maxLines: null,
                                         softWrap: true,

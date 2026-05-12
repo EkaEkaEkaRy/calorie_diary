@@ -1,34 +1,18 @@
 class FoodEntry {
-  int? id; // ID записи (автоинкремент в SQLite)
+  int id; // ID записи (автоинкремент в SQLite)
   String name; // Название продукта или блюда
-  int calories; // Калории
-  int proteins; // Белки (опционально)
-  int fats; // Жиры (опционально)
-  int carbs; // Углеводы (опционально)
-  String date; // Дата приёма пищи (в формате строки)
+  double calories; // Калории
+  double? weight;
+  String? imagePath;
+  String? barcode;
 
-  FoodEntry({
-    this.id,
-    required this.name,
-    required this.calories,
-    this.proteins = 0,
-    this.fats = 0,
-    this.carbs = 0,
-    required this.date,
-  });
-
-  // Преобразование объекта в Map для SQLite
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'calories': calories,
-      'proteins': proteins,
-      'fats': fats,
-      'carbs': carbs,
-      'date': date,
-    };
-  }
+  FoodEntry(
+      {required this.id,
+      required this.name,
+      required this.calories,
+      this.weight,
+      this.imagePath,
+      this.barcode});
 
   // Создание объекта из Map (из данных SQLite)
   factory FoodEntry.fromMap(Map<String, dynamic> map) {
@@ -36,10 +20,9 @@ class FoodEntry {
       id: map['id'],
       name: map['name'],
       calories: map['calories'],
-      proteins: map['proteins'],
-      fats: map['fats'],
-      carbs: map['carbs'],
-      date: map['date'],
+      weight: map['weight'],
+      imagePath: map['imagePath'],
+      barcode: map['barcode'],
     );
   }
 }

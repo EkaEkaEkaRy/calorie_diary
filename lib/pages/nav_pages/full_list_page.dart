@@ -1,4 +1,5 @@
 import 'package:calorie_diary/models/db_helper.dart';
+import 'package:calorie_diary/models/food_entry.dart';
 import 'package:flutter/material.dart';
 
 class FullListPage extends StatefulWidget {
@@ -9,9 +10,9 @@ class FullListPage extends StatefulWidget {
 }
 
 class _FullListPageState extends State<FullListPage> {
-  Future<List<String>>? _eventsFuture;
-  List<String> _allEventsTexts = [];
-  List<String> _filteredEventsTexts = [];
+  Future<List<FoodEntry>>? _eventsFuture;
+  List<FoodEntry> _allEventsTexts = [];
+  List<FoodEntry> _filteredEventsTexts = [];
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -22,18 +23,16 @@ class _FullListPageState extends State<FullListPage> {
     _searchController.addListener(_onSearchChanged);
   }
 
-  Future<List<String>> _loadAllEventsText() async {
-    final allEvents = await DatabaseHelper.instance.getAllEvents();
-    return allEvents
-        .map<String>((e) => e['text'] as String? ?? 'Без описания')
-        .toList();
+  Future<List<FoodEntry>> _loadAllEventsText() async {
+    final maps = await DatabaseHelper.instance.getAllFood();
+    return maps.map((map) => FoodEntry.fromMap(map)).toList();
   }
 
   void _onSearchChanged() {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredEventsTexts = _allEventsTexts
-          .where((text) => text.toLowerCase().contains(query))
+          .where((text) => text.name.toLowerCase().contains(query))
           .toList();
     });
   }
@@ -52,7 +51,7 @@ class _FullListPageState extends State<FullListPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
       ),
-      body: FutureBuilder<List<String>>(
+      body: FutureBuilder<List<FoodEntry>>(
         future: _eventsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -95,7 +94,7 @@ class _FullListPageState extends State<FullListPage> {
                           separatorBuilder: (_, __) =>
                               const SizedBox(height: 8),
                           itemBuilder: (context, index) {
-                            final text = _filteredEventsTexts[index];
+                            final food = _filteredEventsTexts[index];
                             return Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -111,7 +110,7 @@ class _FullListPageState extends State<FullListPage> {
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
                                 child: Text(
-                                  text,
+                                  food.name,
                                   style: const TextStyle(fontSize: 16),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,

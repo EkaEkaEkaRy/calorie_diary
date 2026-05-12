@@ -22,6 +22,23 @@ class _MemoryGroupTestPageState extends State<MemoryGroupTestPage> {
   void initState() {
     super.initState();
     _eventsFuture = _loadData();
+    _initAppData();
+  }
+
+  Future<void> _initAppData() async {
+    final db = DatabaseHelper.instance;
+
+    // Загружаем данные из таблиц
+    final categoriesFromDb = await db.getAllCategories();
+    final linksFromDb = await db.getAllMemoryLinks();
+
+    setState(() {
+      availableCategories.clear();
+      availableCategories.addAll(categoriesFromDb);
+
+      memoryLinks.clear();
+      memoryLinks.addAll(linksFromDb);
+    });
   }
 
   Future<List<MemoryItemModel>> _loadData() async {

@@ -61,7 +61,9 @@ class _EventFormScreenState extends State<EventFormScreen> {
     _selectedType = widget.event != null
         ? widget.event!['type']
         : (widget.initialType ?? _dbTypes[0]);
-    _text = widget.event != null ? widget.event!['text'] : '';
+    _text = widget.event != null
+        ? widget.event!['foodName'] ?? widget.event!['text']
+        : '';
 
     _weightInGrams =
         widget.event != null && widget.event!['weightOrCount'] != null
@@ -124,7 +126,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
   ) {
     if (query.isEmpty) return const Iterable<Map<String, dynamic>>.empty();
 
-    final texts = events.map((e) => e['text'].toString()).toList();
+    final texts = events.map((e) => e['name'].toString()).toList();
 
     final fuse = Fuzzy(
       texts,
@@ -140,7 +142,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
     final scoredResults = results.map((r) {
       final text = r.item;
       final score = r.score;
-      final event = events.firstWhere((e) => e['text'].toString() == text);
+      final event = events.firstWhere((e) => e['name'].toString() == text);
 
       final commonWords = countCommonWords(query, text);
       final adjacentMatches = countAdjacentMatches(query, text);
@@ -267,26 +269,38 @@ class _EventFormScreenState extends State<EventFormScreen> {
 
     final dateString = DateFormat('yyyy-MM-dd').format(widget.date);
 
-    final row = {
-      'date': dateString,
-      'type': _selectedType,
-      'text': _text,
-      'weightOrCount':
-          _weightInGrams.isNotEmpty ? double.tryParse(_weightInGrams) : null,
-      'energyValue':
-          _energyValue.isNotEmpty ? double.tryParse(_energyValue) : null,
-      'imagePath': _imageFile?.path ??
-          (widget.event != null ? widget.event!['imagePath'] : null),
-      'count': _count.toDouble(),
-    };
-
-    final db = await DatabaseHelper.instance.database;
-
     if (widget.event == null) {
-      await db.insert('events', row);
+      final row = {
+        'date': dateString,
+        'type': _selectedType,
+        'text': _text,
+        'food_id': null,
+        'weightOrCount':
+            _weightInGrams.isNotEmpty ? double.tryParse(_weightInGrams) : null,
+        'energyValue':
+            _energyValue.isNotEmpty ? double.tryParse(_energyValue) : null,
+        'imagePath': _imageFile?.path ??
+            (widget.event != null ? widget.event!['imagePath'] : null),
+        'count': _count.toDouble(),
+      };
+
+      await DatabaseHelper.instance.insertEvent(row);
     } else {
-      await db.update('events', row,
-          where: 'id = ?', whereArgs: [widget.event!['id']]);
+      final row = {
+        'date': dateString,
+        'type': _selectedType,
+        'text': _text,
+        'food_id': widget.event!['food_id'],
+        'weightOrCount':
+            _weightInGrams.isNotEmpty ? double.tryParse(_weightInGrams) : null,
+        'energyValue':
+            _energyValue.isNotEmpty ? double.tryParse(_energyValue) : null,
+        'imagePath': _imageFile?.path ??
+            (widget.event != null ? widget.event!['imagePath'] : null),
+        'count': _count.toDouble(),
+      };
+
+      await DatabaseHelper.instance.updateEvent(row, widget.event!['id']);
     }
 
     if (_text != null && containsAnySubstring(_text!)) {
@@ -379,7 +393,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
                   _textController.text = textEditingValue.text;
                   return fuzzySearch(_textSuggestions, textEditingValue.text);
                 },
-                displayStringForOption: (option) => option['text'].toString(),
+                displayStringForOption: (option) => option['name'].toString(),
                 fieldViewBuilder:
                     (context, controller, focusNode, onFieldSubmitted) {
                   // Инициализируем контроллер начальными данными (если нужно)
@@ -451,7 +465,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
                               child: Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 14),
-                                child: Text(option['text'].toString()),
+                                child: Text(option['name'].toString()),
                               ),
                             );
                           },
@@ -461,15 +475,10 @@ class _EventFormScreenState extends State<EventFormScreen> {
                   );
                 },
                 onSelected: (selectedEvent) async {
-                  final betterOptions = await DatabaseHelper.instance
-                      .getEvent(textQuery: selectedEvent['text']);
-                  final betterOption = betterOptions[0];
                   setState(() {
-                    _weightInGrams =
-                        betterOption['weightOrCount']?.toString() ?? '';
-                    _energyValue =
-                        betterOption['energyValue']?.toString() ?? '';
-                    _text = betterOption['text'];
+                    _weightInGrams = selectedEvent['weight']?.toString() ?? '';
+                    _energyValue = selectedEvent['calories']?.toString() ?? '';
+                    _text = selectedEvent['name'];
 
                     _weightController.text = _weightInGrams;
                     _energyController.text = _energyValue;

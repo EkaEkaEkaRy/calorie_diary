@@ -1,4 +1,5 @@
 import 'package:calorie_diary/models/category_item.dart';
+import 'package:calorie_diary/models/db_helper.dart';
 import 'package:calorie_diary/pages/memory_page/test_memory_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -40,10 +41,18 @@ Future<void> _showCreateCategoryDialog(
               onPressed: () => Navigator.pop(context),
               child: const Text('Отмена')),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (controller.text.isNotEmpty) {
+                // 1. Сохраняем в БД
+                final int newId = await DatabaseHelper.instance
+                    .insertCategory(controller.text, _tempSelectedColor.value);
+
+                // 2. Добавляем в локальный список уже с реальным ID
                 availableCategories.add(CategoryModel(
-                    name: controller.text, color: _tempSelectedColor));
+                    id: newId,
+                    name: controller.text,
+                    color: _tempSelectedColor));
+
                 onCategoryCreated();
                 Navigator.pop(context);
               }
@@ -176,12 +185,16 @@ void _showEditCategoryDialog(BuildContext context, CategoryModel cat,
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              availableCategories.remove(cat);
-              // Удаляем связи этой категории у всех карточек
+            onPressed: () async {
+              // Удаляем из БД
+              await DatabaseHelper.instance.deleteCategory(cat.id);
+
+              // Чистим локальные списки
+              availableCategories.removeWhere((c) => c.id == cat.id);
               for (var list in memoryLinks.values) {
-                list.remove(cat);
+                list.removeWhere((c) => c.id == cat.id);
               }
+
               onCategoryCreated();
               Navigator.pop(context);
               setModalState(() {});
@@ -189,18 +202,27 @@ void _showEditCategoryDialog(BuildContext context, CategoryModel cat,
             child: const Text('Удалить', style: TextStyle(color: Colors.red)),
           ),
           ElevatedButton(
-            onPressed: () {
-              int index = availableCategories.indexOf(cat);
-              availableCategories[index] = CategoryModel(
-                  name: controller.text, color: _tempSelectedColor);
+            onPressed: () async {
+              // Обновляем в БД
+              await DatabaseHelper.instance.updateCategory(
+                  cat.id, controller.text, _tempSelectedColor.value);
 
-              // Обновляем категорию во всех связях, чтобы цвет/имя поменялись везде
-              for (var list in memoryLinks.values) {
-                if (list.contains(cat)) {
-                  int i = list.indexOf(cat);
-                  list[i] = availableCategories[index];
+              // Обновляем локально
+              int index = availableCategories.indexWhere((c) => c.id == cat.id);
+              if (index != -1) {
+                final updatedCat = CategoryModel(
+                    id: cat.id,
+                    name: controller.text,
+                    color: _tempSelectedColor);
+                availableCategories[index] = updatedCat;
+
+                // Обновляем во всех связях
+                for (var list in memoryLinks.values) {
+                  int linkIndex = list.indexWhere((c) => c.id == cat.id);
+                  if (linkIndex != -1) list[linkIndex] = updatedCat;
                 }
               }
+
               onCategoryCreated();
               Navigator.pop(context);
               setModalState(() {});
@@ -214,15 +236,18 @@ void _showEditCategoryDialog(BuildContext context, CategoryModel cat,
 }
 
 // Метод для "привязки"
-void _toggleCategory(
-    int memoryId, CategoryModel category, VoidCallback onCategoryCreated) {
-  memoryLinks.putIfAbsent(memoryId, () => []);
+void _toggleCategory(int memoryId, CategoryModel category,
+    VoidCallback onCategoryCreated) async {
+  // 1. Работаем с БД
+  await DatabaseHelper.instance.toggleLink(memoryId, category.id);
 
-  // Теперь сравнение объектов будет работать корректно
-  if (memoryLinks[memoryId]!.contains(category)) {
-    memoryLinks[memoryId]!.remove(category);
+  // 2. Обновляем локальный Map для мгновенного UI-отклика
+  memoryLinks.putIfAbsent(memoryId, () => []);
+  if (memoryLinks[memoryId]!.any((c) => c.id == category.id)) {
+    memoryLinks[memoryId]!.removeWhere((c) => c.id == category.id);
   } else {
     memoryLinks[memoryId]!.add(category);
   }
+
   onCategoryCreated();
 }
