@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:calorie_diary/models/db_helper.dart';
+import 'package:calorie_diary/database/db_helper.dart';
 import 'package:calorie_diary/pages/diary_page.dart';
 import 'package:calorie_diary/widgets/bottom_swipe_menu.dart';
 import 'package:flutter/material.dart';

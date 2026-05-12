@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:calorie_diary/models/db_helper.dart';
+import 'package:calorie_diary/database/db_helper.dart';
 import 'package:calorie_diary/pages/add_form_page.dart';
 import 'package:calorie_diary/pages/full_screen_image_page.dart';
 import 'package:flutter/material.dart';

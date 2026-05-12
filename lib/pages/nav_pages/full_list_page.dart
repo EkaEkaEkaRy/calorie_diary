@@ -1,4 +1,4 @@
-import 'package:calorie_diary/models/db_helper.dart';
+import 'package:calorie_diary/database/db_helper.dart';
 import 'package:calorie_diary/models/food_entry.dart';
 import 'package:flutter/material.dart';
 

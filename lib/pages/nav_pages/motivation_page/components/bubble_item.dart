@@ -1,6 +1,6 @@
 // Вспомогательный виджет для пузырька
 import 'dart:math';
-import 'package:calorie_diary/data/icons_list.dart';
+import 'package:calorie_diary/database/data/icons_list.dart';
 import 'package:flutter/material.dart';
 
 class BubbleItem extends StatefulWidget {

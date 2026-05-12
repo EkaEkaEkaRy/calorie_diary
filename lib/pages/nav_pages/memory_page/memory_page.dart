@@ -1,5 +1,5 @@
 import 'package:calorie_diary/models/category_item.dart';
-import 'package:calorie_diary/models/db_helper.dart';
+import 'package:calorie_diary/database/db_helper.dart';
 import 'package:calorie_diary/models/memory_item_model.dart';
 import 'package:calorie_diary/pages/nav_pages/memory_page/components/memory_card.dart';
 import 'package:flutter/material.dart';

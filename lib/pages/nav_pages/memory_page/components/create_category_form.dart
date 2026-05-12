@@ -1,5 +1,5 @@
 import 'package:calorie_diary/models/category_item.dart';
-import 'package:calorie_diary/models/db_helper.dart';
+import 'package:calorie_diary/database/db_helper.dart';
 import 'package:calorie_diary/pages/nav_pages/memory_page/memory_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -44,8 +44,8 @@ Future<void> _showCreateCategoryDialog(
             onPressed: () async {
               if (controller.text.isNotEmpty) {
                 // 1. Сохраняем в БД
-                final int newId = await DatabaseHelper.instance
-                    .insertCategory(controller.text, _tempSelectedColor.value);
+                final int newId = await DatabaseHelper.instance.insertCategory(
+                    controller.text, _tempSelectedColor.toARGB32());
 
                 // 2. Добавляем в локальный список уже с реальным ID
                 availableCategories.add(CategoryModel(
@@ -54,6 +54,7 @@ Future<void> _showCreateCategoryDialog(
                     color: _tempSelectedColor));
 
                 onCategoryCreated();
+                if (!context.mounted) return;
                 Navigator.pop(context);
               }
             },
@@ -196,6 +197,7 @@ void _showEditCategoryDialog(BuildContext context, CategoryModel cat,
               }
 
               onCategoryCreated();
+              if (!context.mounted) return;
               Navigator.pop(context);
               setModalState(() {});
             },
@@ -205,7 +207,7 @@ void _showEditCategoryDialog(BuildContext context, CategoryModel cat,
             onPressed: () async {
               // Обновляем в БД
               await DatabaseHelper.instance.updateCategory(
-                  cat.id, controller.text, _tempSelectedColor.value);
+                  cat.id, controller.text, _tempSelectedColor.toARGB32());
 
               // Обновляем локально
               int index = availableCategories.indexWhere((c) => c.id == cat.id);
@@ -224,6 +226,7 @@ void _showEditCategoryDialog(BuildContext context, CategoryModel cat,
               }
 
               onCategoryCreated();
+              if (!context.mounted) return;
               Navigator.pop(context);
               setModalState(() {});
             },

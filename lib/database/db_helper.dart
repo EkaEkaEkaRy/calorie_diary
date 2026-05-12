@@ -154,6 +154,7 @@ class DatabaseHelper {
     }
   }
 
+  // События
   Future<int> insertEvent(Map<String, dynamic> row) async {
     final db = await instance.database;
 
@@ -282,22 +283,6 @@ class DatabaseHelper {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getAllMemories() async {
-    final db = await instance.database;
-
-    return await db.rawQuery('''
-    SELECT DISTINCT 
-      events.id, 
-      COALESCE(foods.name, events.text) AS text, 
-      events.date, 
-      events.imagePath 
-    FROM events 
-    LEFT JOIN foods ON events.food_id = foods.id
-    WHERE events.imagePath IS NOT NULL 
-    ORDER BY events.date DESC
-  ''');
-  }
-
   Future<List<Map<String, dynamic>>> getEventsByDate(String date) async {
     final db = await instance.database;
     return await db.rawQuery('''
@@ -335,6 +320,24 @@ class DatabaseHelper {
         where: "date = ? AND type = 'Алкоголь'", whereArgs: [date]);
   }
 
+  // Воспоминания
+  Future<List<Map<String, dynamic>>> getAllMemories() async {
+    final db = await instance.database;
+
+    return await db.rawQuery('''
+    SELECT DISTINCT 
+      events.id, 
+      COALESCE(foods.name, events.text) AS text, 
+      events.date, 
+      events.imagePath 
+    FROM events 
+    LEFT JOIN foods ON events.food_id = foods.id
+    WHERE events.imagePath IS NOT NULL 
+    ORDER BY events.date DESC
+  ''');
+  }
+
+  // Весь список блюд
   Future<List<Map<String, dynamic>>> getAllFood() async {
     final db = await instance.database;
 
