@@ -118,11 +118,12 @@ void showCategoryPicker(
 
                   final cat = availableCategories[index];
                   bool isSelected =
-                      memoryLinks[memoryId]?.contains(cat) ?? false;
+                      memoryLinks[memoryId]?.any((item) => item.id == cat.id) ??
+                          false;
 
                   return GestureDetector(
-                    onTap: () {
-                      _toggleCategory(memoryId, cat, onCategoryCreated);
+                    onTap: () async {
+                      await _toggleCategory(memoryId, cat, onCategoryCreated);
                       setModalState(() {});
                     },
                     onLongPress: () => _showEditCategoryDialog(
@@ -239,17 +240,20 @@ void _showEditCategoryDialog(BuildContext context, CategoryModel cat,
 }
 
 // Метод для "привязки"
-void _toggleCategory(int memoryId, CategoryModel category,
+Future<void> _toggleCategory(int memoryId, CategoryModel category,
     VoidCallback onCategoryCreated) async {
   // 1. Работаем с БД
   await DatabaseHelper.instance.toggleLink(memoryId, category.id);
 
   // 2. Обновляем локальный Map для мгновенного UI-отклика
   memoryLinks.putIfAbsent(memoryId, () => []);
-  if (memoryLinks[memoryId]!.any((c) => c.id == category.id)) {
-    memoryLinks[memoryId]!.removeWhere((c) => c.id == category.id);
+  final list = memoryLinks[memoryId]!;
+  bool exists = list.any((c) => c.id == category.id);
+
+  if (exists) {
+    list.removeWhere((c) => c.id == category.id);
   } else {
-    memoryLinks[memoryId]!.add(category);
+    list.add(category);
   }
 
   onCategoryCreated();

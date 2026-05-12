@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:calorie_diary/models/memory_item_model.dart';
+import 'package:calorie_diary/pages/full_screen_image_page.dart';
 import 'package:calorie_diary/pages/nav_pages/memory_page/components/create_category_form.dart';
 import 'package:calorie_diary/pages/nav_pages/memory_page/memory_page.dart';
 import 'package:flutter/material.dart';
@@ -38,9 +39,20 @@ Widget buildMemoryCard(BuildContext context, MemoryItemModel item, double width,
                   MainAxisSize.min, // Позволяет колонке сжиматься/расти
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: Image.file(File(item.image), fit: BoxFit.cover),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            FullscreenImageScreen(imagePath: item.image),
+                      ),
+                    );
+                  },
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Image.file(File(item.image), fit: BoxFit.cover),
+                  ),
                 ),
                 if (currentCategories.isNotEmpty || item.text != "")
                   Padding(
