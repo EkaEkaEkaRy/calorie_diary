@@ -1,6 +1,6 @@
 import 'package:calorie_diary/models/category_item.dart';
 import 'package:calorie_diary/models/db_helper.dart';
-import 'package:calorie_diary/pages/memory_page/test_memory_page.dart';
+import 'package:calorie_diary/pages/nav_pages/memory_page/memory_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 

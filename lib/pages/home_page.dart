@@ -30,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadEventsForDay(DateTime day) async {
-    await DatabaseHelper.instance.debugPrintFullDatabase();
     final dateString = DateFormat('yyyy-MM-dd').format(day);
     final events = await DatabaseHelper.instance.getEventsByDate(dateString);
     setState(() {

@@ -1,21 +1,21 @@
 import 'package:calorie_diary/models/category_item.dart';
 import 'package:calorie_diary/models/db_helper.dart';
 import 'package:calorie_diary/models/memory_item_model.dart';
-import 'package:calorie_diary/pages/memory_page/components/memory_card.dart';
+import 'package:calorie_diary/pages/nav_pages/memory_page/components/memory_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 final Map<int, List<CategoryModel>> memoryLinks = {};
 final List<CategoryModel> availableCategories = [];
 
-class MemoryGroupTestPage extends StatefulWidget {
-  const MemoryGroupTestPage({super.key});
+class MemoryListPage extends StatefulWidget {
+  const MemoryListPage({super.key});
 
   @override
-  State<MemoryGroupTestPage> createState() => _MemoryGroupTestPageState();
+  State<MemoryListPage> createState() => _MemoryListPageState();
 }
 
-class _MemoryGroupTestPageState extends State<MemoryGroupTestPage> {
+class _MemoryListPageState extends State<MemoryListPage> {
   Future<List<MemoryItemModel>>? _eventsFuture;
 
   @override

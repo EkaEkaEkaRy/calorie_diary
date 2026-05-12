@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:calorie_diary/models/memory_item_model.dart';
-import 'package:calorie_diary/pages/memory_page/components/create_category_form.dart';
-import 'package:calorie_diary/pages/memory_page/test_memory_page.dart';
+import 'package:calorie_diary/pages/nav_pages/memory_page/components/create_category_form.dart';
+import 'package:calorie_diary/pages/nav_pages/memory_page/memory_page.dart';
 import 'package:flutter/material.dart';
 
 Widget buildMemoryCard(BuildContext context, MemoryItemModel item, double width,

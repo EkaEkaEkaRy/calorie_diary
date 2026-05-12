@@ -1,7 +1,6 @@
+import 'package:calorie_diary/pages/nav_pages/memory_page/memory_page.dart';
 import 'package:calorie_diary/pages/nav_pages/full_list_page.dart';
-import 'package:calorie_diary/pages/nav_pages/memory_list_page.dart';
 import 'package:calorie_diary/pages/nav_pages/motivation_page/motivation_page.dart';
-import 'package:calorie_diary/pages/memory_page/test_memory_page.dart';
 import 'package:flutter/material.dart';
 
 class BottomSwipeMenu extends StatefulWidget {
@@ -19,22 +18,13 @@ class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
       'label': 'Блюда',
       'page': const FullListPage()
     },
-    {
-      'icon': Icons.photo_album,
-      'label': 'Фото',
-      'page': const MemoryListPage()
-    },
+    {'icon': Icons.photo_album, 'label': 'Фото', 'page': MemoryListPage()},
     {
       'icon': Icons.brightness_4_outlined,
       'label': 'Мотивация',
       'page': const MotivationPage()
     },
     {'icon': Icons.settings_outlined, 'label': 'Настройки', 'page': null},
-    {
-      'icon': Icons.settings_outlined,
-      'label': 'Тестовый',
-      'page': MemoryGroupTestPage()
-    },
   ];
 
   late PageController _pageController;
