@@ -1,7 +1,7 @@
 import 'package:calorie_diary/pages/nav_pages/full_list_page.dart';
 import 'package:calorie_diary/pages/nav_pages/memory_list_page.dart';
 import 'package:calorie_diary/pages/nav_pages/motivation_page/motivation_page.dart';
-import 'package:calorie_diary/pages/test_memory_page.dart';
+import 'package:calorie_diary/pages/memory_page/test_memory_page.dart';
 import 'package:flutter/material.dart';
 
 class BottomSwipeMenu extends StatefulWidget {
