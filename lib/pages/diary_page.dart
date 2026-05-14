@@ -5,6 +5,7 @@ import 'package:calorie_diary/pages/add_form_page.dart';
 import 'package:calorie_diary/pages/full_screen_image_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EventsListScreen extends StatefulWidget {
   final DateTime date;
@@ -38,13 +39,32 @@ class _EventsListScreenState extends State<EventsListScreen> {
     'Перекус 3': 'Перекус',
   };
 
+  final Map<String, Color> _typeColors = {
+    'Завтрак': const Color(0xFF4CAF50), // Твой primary (зеленый)
+    'Перекус 1': const Color(0xFFC8E6C9), // Пурпурный
+    'Обед': const Color(0xFFFFC107), // Твой secondary (янтарный)
+    'Перекус 2': const Color(0xFFFFECB3), // Пурпурный
+    'Ужин': const Color(0xFFBA1A1A), // Твой tertiary (серо-зеленый)
+    'Перекус 3': const Color(0xFFFFDAD6), // Пурпурный
+    // Добавь сюда остальные типы из твоего _dbTypes
+  };
+
   Map<String, List<Map<String, dynamic>>> _eventsByType = {};
   final Map<String, bool> _alcoholSwitchValue = {'Алкоголь': false};
+  int? _dailyCalorieNorm;
 
   @override
   void initState() {
     super.initState();
     _loadEvents();
+    _loadCalorieNorm();
+  }
+
+  Future<void> _loadCalorieNorm() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _dailyCalorieNorm = prefs.getInt('daily_calorie_norm');
+    });
   }
 
   Future<void> _loadEvents() async {
@@ -146,13 +166,159 @@ class _EventsListScreenState extends State<EventsListScreen> {
             // Первая строка — выводим суммарные калории
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Text(
-                'Калории за день: ${totalCalories.toStringAsFixed(1)} ккал',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green[700],
-                ),
+              child: Builder(
+                builder: (context) {
+                  final colorScheme = Theme.of(context).colorScheme;
+
+                  // Если норма не задана в SharedPreferences — возвращаем твой исходный базовый текст
+                  if (_dailyCalorieNorm == null) {
+                    return Text(
+                      'Калории за день: ${totalCalories.toStringAsFixed(1)} ккал',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    );
+                  }
+
+                  // Если норма задана — вычисляем прогресс для шкалы и статус перебора
+                  // double progress = totalCalories / _dailyCalorieNorm!;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Калории за день',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          Text(
+                            '${totalCalories.toStringAsFixed(1)} / $_dailyCalorieNorm ккал',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Индикатор прогресса (Шкала)
+                      // LinearProgressIndicator(
+                      //   value: progress.clamp(0.0, 1.0),
+                      //   minHeight: 10,
+                      //   borderRadius: BorderRadius.circular(10),
+                      //   backgroundColor: colorScheme.surfaceContainerHighest,
+                      //   color: colorScheme.primary,
+                      // ),
+
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final colorScheme = Theme.of(context).colorScheme;
+
+                          // Если калорий вообще нет — выводим простую пустую серую шкалу
+                          if (_dailyCalorieNorm == null ||
+                              _dailyCalorieNorm == 0) {
+                            return Container(
+                              height: 12,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            );
+                          }
+
+                          // 1. Собираем ширину для каждого сегмента
+                          List<Widget> segments = [];
+
+                          for (String dbType in _dbTypes) {
+                            final events = _eventsByType[dbType] ?? [];
+
+                            // Твоя формула расчета калорий для текущего типа
+                            final double typeCalories =
+                                events.fold(0, (sum, event) {
+                              final weight = event['weightOrCount'];
+                              final energy = event['energyValue'];
+                              final count = event['count'];
+                              if (weight != null && energy != null) {
+                                return sum + (weight * energy * count / 100);
+                              }
+                              return sum;
+                            });
+
+                            if (typeCalories > 0) {
+                              // Вычисляем, какую долю от нормы занимает этот тип
+                              double weightRatio =
+                                  typeCalories / _dailyCalorieNorm!;
+
+                              // Добавляем сегмент в Row
+                              segments.add(
+                                Flexible(
+                                  flex: (weightRatio * 1000)
+                                      .round(), // Используем flex для точного распределения долей
+                                  child: Container(
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: _typeColors[dbType] ??
+                                          colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+
+                          // 2. Считаем оставшееся пустое место до конца нормы
+                          double remainingCalories =
+                              _dailyCalorieNorm! - totalCalories;
+                          if (remainingCalories > 0) {
+                            double remainingRatio =
+                                remainingCalories / _dailyCalorieNorm!;
+                            segments.add(
+                              Flexible(
+                                flex: (remainingRatio * 1000).round(),
+                                child: Container(
+                                  height: 12,
+                                  color: colorScheme
+                                      .surfaceContainerHighest, // Серый остаток шкалы
+                                ),
+                              ),
+                            );
+                          }
+
+                          // 3. Если произошел общий перебор нормы (>100%), заставим шкалу заполниться полностью,
+                          // но сохраняя пропорции сегментов внутри
+                          bool isOverLimit = totalCalories > _dailyCalorieNorm!;
+
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                                10), // Скругляем края всей шкалы целиком
+                            child: Container(
+                              height: 12,
+                              width: double.infinity,
+                              color: isOverLimit
+                                  ? colorScheme.error.withValues(alpha: 0.2)
+                                  : colorScheme.surfaceContainerHighest,
+                              child: Row(
+                                children: segments,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                },
               ),
             );
           }

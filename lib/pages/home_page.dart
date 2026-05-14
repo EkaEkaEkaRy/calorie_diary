@@ -3,6 +3,7 @@ import 'package:calorie_diary/database/db_helper.dart';
 import 'package:calorie_diary/pages/diary_page.dart';
 import 'package:calorie_diary/widgets/bottom_swipe_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 
@@ -21,12 +22,21 @@ class _HomeScreenState extends State<HomeScreen> {
   // Для удобства создадим Map<DateTime, List> для событий
   Map<DateTime, List<Map<String, dynamic>>> _eventsMap = {};
   Map<DateTime, List<Map<String, dynamic>>> _alcoholEventsMap = {};
+  int? _dailyCalorieNorm;
 
   @override
   void initState() {
     super.initState();
     _loadEventsForDay(_selectedDay);
     _loadEventsForMonth(_focusedDay);
+    _loadCalorieNorm();
+  }
+
+  Future<void> _loadCalorieNorm() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _dailyCalorieNorm = prefs.getInt('daily_calorie_norm');
+    });
   }
 
   Future<void> _loadEventsForDay(DateTime day) async {
@@ -241,13 +251,66 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           SizedBox(height: 16),
-          Text(
-            'Калории за день: ${totalCalories.toStringAsFixed(1)} ккал',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.green[700],
-            ),
+          Builder(
+            builder: (context) {
+              final colorScheme = Theme.of(context).colorScheme;
+
+              // Если норма не задана в SharedPreferences — возвращаем твой исходный базовый текст
+              if (_dailyCalorieNorm == null) {
+                return Text(
+                  'Калории за день: ${totalCalories.toStringAsFixed(1)} ккал',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                  ),
+                );
+              }
+
+              // Если норма задана — вычисляем прогресс для шкалы и статус перебора
+              double progress = totalCalories / _dailyCalorieNorm!;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Калории за день',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        Text(
+                          '${totalCalories.toStringAsFixed(1)} / $_dailyCalorieNorm ккал',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // ВИЗУАЛЬНЫЙ ВАРИАНТ: Индикатор прогресса (Шкала)
+                    LinearProgressIndicator(
+                      value: progress.clamp(0.0, 1.0),
+                      minHeight: 10,
+                      borderRadius: BorderRadius.circular(10),
+                      backgroundColor: colorScheme.surfaceContainerHighest,
+                      color: colorScheme.primary,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
           Expanded(
             child: GestureDetector(
