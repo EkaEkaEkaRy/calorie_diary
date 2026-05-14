@@ -1,3 +1,4 @@
+import 'package:calorie_diary/pages/nav_pages/challenge_page/challenge_page.dart';
 import 'package:calorie_diary/pages/nav_pages/memory_page/memory_page.dart';
 import 'package:calorie_diary/pages/nav_pages/full_list_page.dart';
 import 'package:calorie_diary/pages/nav_pages/motivation_page/motivation_page.dart';
@@ -23,6 +24,11 @@ class _BottomSwipeMenuState extends State<BottomSwipeMenu> {
       'icon': Icons.brightness_4_outlined,
       'label': 'Мотивация',
       'page': const MotivationPage()
+    },
+    {
+      'icon': Icons.emoji_events_outlined,
+      'label': 'Челлендж',
+      'page': const TreeChallengePage()
     },
     {'icon': Icons.settings_outlined, 'label': 'Настройки', 'page': null},
   ];

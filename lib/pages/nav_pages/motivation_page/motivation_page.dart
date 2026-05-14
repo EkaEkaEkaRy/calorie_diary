@@ -1,8 +1,6 @@
 import 'dart:math';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:calorie_diary/database/data/facts_list.dart';
 import 'package:calorie_diary/pages/nav_pages/motivation_page/components/breathing_exercise.dart';
-import 'package:calorie_diary/pages/nav_pages/motivation_page/components/bubble_item.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -19,21 +17,9 @@ class _MotivationPageState extends State<MotivationPage> {
   bool _isTimerRunning = false;
   int _factIndex = Random().nextInt(facts.length);
 
-  final AudioPlayer _commonPlayer = AudioPlayer();
-
   @override
   void initState() {
     super.initState();
-    // Предзагружаем звук один раз
-    _commonPlayer.setSource(AssetSource('music/bubble.mp3'));
-    // Отключаем лишний спам в консоль
-    _commonPlayer.setReleaseMode(ReleaseMode.stop);
-  }
-
-  // Метод для воспроизведения
-  void _playPopSound() {
-    _commonPlayer.stop(); // Мгновенно сбрасываем, если звук уже идет
-    _commonPlayer.resume(); // Играем заново
   }
 
   void _startTimer() {
@@ -64,7 +50,6 @@ class _MotivationPageState extends State<MotivationPage> {
   @override
   void dispose() {
     _timer?.cancel();
-    _commonPlayer.dispose();
     super.dispose();
   }
 
@@ -102,26 +87,7 @@ class _MotivationPageState extends State<MotivationPage> {
 
           _buildDistractionCard(colorScheme),
 
-          const SizedBox(height: 10),
-
-          _buildPopItCard(colorScheme),
-
           const SizedBox(height: 50),
-
-          // КНОПКА ВОДЫ
-          // _buildActionCard(
-          //   colorScheme,
-          //   title: "Выпить стакан воды",
-          //   subtitle: "Иногда мозг путает жажду с голодом",
-          //   icon: Icons.local_drink_rounded,
-          //   onTap: () {
-          //     ScaffoldMessenger.of(context).showSnackBar(
-          //       const SnackBar(
-          //           content: Text('Отлично! Ты на шаг ближе к цели 💧')),
-          //     );
-          //     Navigator.pop(context); // Возвращаемся на главный экран
-          //   },
-          // ),
         ],
       ),
     );
@@ -364,34 +330,6 @@ class _MotivationPageState extends State<MotivationPage> {
             ),
           )
         ],
-      ),
-    );
-  }
-
-// 2. БЛОК: Мини-игра "Пузырьки" (Антистресс)
-  Widget _buildPopItCard(ColorScheme colorScheme) {
-    return Card(
-      color: colorScheme.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text("Просто лопай пузырьки",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: List.generate(
-                  12,
-                  (index) => BubbleItem(
-                        colorScheme: colorScheme,
-                        onPop: _playPopSound,
-                      )),
-            ),
-          ],
-        ),
       ),
     );
   }

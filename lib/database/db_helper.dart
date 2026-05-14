@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:calorie_diary/models/category_item.dart';
+import 'package:calorie_diary/models/challenge_model.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -429,6 +430,56 @@ class DatabaseHelper {
       await db.delete('event_categories',
           where: 'event_id = ? AND category_id = ?',
           whereArgs: [eventId, categoryId]);
+    }
+  }
+
+  // Проверка челленджа
+  Future<bool> checkChallengeDayStatus(
+      String isoDate, ChallengeType type) async {
+    final db = await instance.database;
+
+    switch (type) {
+      case ChallengeType.cleanMind:
+        // Ищем, были ли записи с типом "Алкоголь" за этот день
+        final res = await db.query('events',
+            where: 'date = ? AND type = ?', whereArgs: [isoDate, 'Алкоголь']);
+        return res
+            .isEmpty; // Если пустой список — значит алкоголя не было, день выполнен!
+
+      case ChallengeType.rainbowPlate:
+        // Проверяем наличие блюд с категорией Овощи/Фрукты
+        final res = await db.rawQuery('''
+        SELECT COUNT(*) as total FROM events 
+        JOIN foods ON events.food_id = foods.id
+        WHERE events.date = ? AND (foods.category = 'Овощи' OR foods.category = 'Фрукты')
+      ''', [isoDate]);
+        return (res.first['total'] as int) > 0;
+
+      case ChallengeType.cleanEvening:
+        // Тут будет проверка времени внесения последней записи в этот день
+        // (Например, если в поле date ты хранишь и время, либо по структуре приложения)
+        return true; // Временная заглушка
+
+      case ChallengeType.inBullseye:
+        // Считаем сумму калорий из events за день и сравниваем с нормой пользователя
+        return true; // Временная заглушка
+
+      case ChallengeType.honestDiary:
+        // Считаем уникальные типы приемов пищи за день (должно быть >= 3: Завтрак, Обед, Ужин)
+        final res =
+            await db.query('events', where: 'date = ?', whereArgs: [isoDate]);
+        return res.length >= 3;
+
+      case ChallengeType.sugarDetox:
+        // Считаем продукты из категории 'Сладости' за день (должно быть <= 1)
+        return true; // Временная заглушка
+
+      case ChallengeType.homeKitchen:
+        // Ищем блюда, содержащие тег/категорию 'Фастфуд' за день
+        return true; // Временная заглушка
+
+      case ChallengeType.lightEvening:
+        return true;
     }
   }
 
