@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:calorie_diary/models/category_item.dart';
 import 'package:calorie_diary/models/challenge_model.dart';
+import 'package:calorie_diary/models/food_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -284,6 +285,16 @@ class DatabaseHelper {
     }
   }
 
+  Future<Map<String, dynamic>?> getFoodByBarcode(String code) async {
+    final db = await instance.database;
+    final foods =
+        await db.rawQuery('SELECT * FROM foods WHERE barcode = ?', [code]);
+    if (foods.isEmpty) {
+      return null;
+    }
+    return foods.first;
+  }
+
   Future<List<Map<String, dynamic>>> getEventsByDate(String date) async {
     final db = await instance.database;
     return await db.rawQuery('''
@@ -343,6 +354,25 @@ class DatabaseHelper {
     final db = await instance.database;
 
     return await db.rawQuery("SELECT * FROM foods ORDER BY name");
+  }
+
+  Future<void> updateFood(FoodEntry food) async {
+    final db = await instance.database;
+
+    await db.rawUpdate('''
+    UPDATE foods 
+    SET name = ?, weight = ?, calories = ?, imagePath = ?, barcode = ?
+    WHERE id = ?
+  ''', [
+      food.name,
+      food.weight,
+      food.calories,
+      food.imagePath,
+      food.barcode,
+      food.id,
+    ]);
+
+    return;
   }
 
   // КАТЕГОРИИ

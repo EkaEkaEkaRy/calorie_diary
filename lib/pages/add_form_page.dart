@@ -1,4 +1,5 @@
 import 'package:calorie_diary/database/db_helper.dart';
+import 'package:calorie_diary/pages/barcode_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -429,6 +430,34 @@ class _EventFormScreenState extends State<EventFormScreen> {
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(color: Colors.red, width: 2),
+                      ),
+                      // ИКОНКА СКАНИРОВАНИЯ ШТРИХКОДА В КОНЦЕ ПОЛЯ ВВОДА
+                      suffixIcon: IconButton(
+                        icon:
+                            const Icon(Icons.qr_code, color: Color(0xFF4CAF50)),
+                        onPressed: () async {
+                          // Открываем созданный ранее экран сканера
+
+                          final Map<String, dynamic>? productMap =
+                              await Navigator.push<Map<String, dynamic>>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const BarcodeScannerPage(),
+                            ),
+                          );
+
+                          if (productMap != null) {
+                            setState(() {
+                              _weightInGrams = productMap['weight'].toString();
+                              _energyValue = productMap['calories'].toString();
+                              _text = productMap['name'].toString();
+
+                              controller.text = _text ?? '';
+                              _weightController.text = _weightInGrams;
+                              _energyController.text = _energyValue;
+                            });
+                          }
+                        },
                       ),
                     ),
                     minLines: 1,

@@ -1,6 +1,6 @@
 import 'package:calorie_diary/pages/nav_pages/challenge_page/challenge_page.dart';
 import 'package:calorie_diary/pages/nav_pages/memory_page/memory_page.dart';
-import 'package:calorie_diary/pages/nav_pages/full_list_page.dart';
+import 'package:calorie_diary/pages/nav_pages/full_list_page/full_list_page.dart';
 import 'package:calorie_diary/pages/nav_pages/motivation_page/motivation_page.dart';
 import 'package:calorie_diary/pages/nav_pages/settings_page/settings_page.dart';
 import 'package:flutter/material.dart';
