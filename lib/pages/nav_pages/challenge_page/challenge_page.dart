@@ -270,7 +270,7 @@ class _TreeChallengePageState extends State<TreeChallengePage> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Divider(
-                color: colorScheme.onSurfaceVariant.withOpacity(0.15),
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.15),
                 thickness: 1),
           ),
 
@@ -298,8 +298,8 @@ class _TreeChallengePageState extends State<TreeChallengePage> {
                       border: isWatered
                           ? Border.all(color: colorScheme.secondary, width: 1.5)
                           : Border.all(
-                              color:
-                                  colorScheme.onSurfaceVariant.withOpacity(0.1),
+                              color: colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.1),
                               width: 1),
                     ),
                     child: Icon(
@@ -307,7 +307,7 @@ class _TreeChallengePageState extends State<TreeChallengePage> {
                       size: 20,
                       color: isWatered
                           ? colorScheme.primary // Твой зеленый 4CAF50
-                          : colorScheme.onSurfaceVariant.withOpacity(0.3),
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                     ),
                   ),
                   const SizedBox(height: 6),

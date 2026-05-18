@@ -1,4 +1,3 @@
-import 'package:calorie_diary/database/db_helper.dart';
 import 'package:calorie_diary/models/food_entry.dart';
 import 'package:calorie_diary/pages/nav_pages/full_list_page/barcode_page.dart';
 import 'package:calorie_diary/pages/nav_pages/full_list_page/bloc/food_bloc.dart';

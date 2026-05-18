@@ -69,12 +69,11 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage>
                 final String? code = barcodes.first.rawValue;
 
                 if (code != null && code.isNotEmpty) {
-                  print(code);
                   final productMap =
                       await DatabaseHelper.instance.getFoodByBarcode(code);
-                  if (mounted && productMap != null) {
+                  if (context.mounted && productMap != null) {
                     Navigator.pop(context, productMap);
-                  } else if (mounted && productMap == null) {
+                  } else if (context.mounted && productMap == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           content:

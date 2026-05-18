@@ -228,7 +228,9 @@ class _CalorieTestPageState extends State<CalorieTestPage> {
     );
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('daily_calorie_norm', result.toInt());
-    Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   Widget _buildProgressBar(Color activeColor) {
